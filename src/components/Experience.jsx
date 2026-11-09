@@ -1,87 +1,82 @@
+import { motion } from "framer-motion";
+import { FaBriefcase, FaCode, FaGraduationCap } from "react-icons/fa";
+
 function Experience() {
+  const responsibilities = [
+    "Built responsive web pages using React, HTML, CSS, and Tailwind CSS.",
+    "Integrated machine learning models into web applications.",
+    "Improved user interfaces and fixed bugs.",
+  ];
+
   return (
-    <section
-      id="experience"
-      className="bg-[#0f172a] text-white py-20"
-    >
-      <div className="max-w-6xl mx-auto px-8">
+    <section id="experience" className="experience-section py-24">
+      <div className="section-container">
+        <div className="section-eyebrow">THE JOURNEY SO FAR</div>
+        <h2 className="section-title">Learning by building.</h2>
+        <p className="section-lede">
+          Hands-on experience and the education behind my work.
+        </p>
 
-        <h2 className="text-5xl font-bold text-center mb-16">
-          Experience & Education
-        </h2>
-
-        <div className="grid md:grid-cols-2 gap-10">
-
-          {/* Experience */}
-
-          <div className="bg-[#1e293b] p-8 rounded-2xl shadow-lg">
-            <h3 className="text-3xl font-bold text-blue-400 mb-5">
-              Experience
-            </h3>
-
-            <div>
-              <h4 className="text-xl font-semibold">
-                Python Programming and Machine Learning
-              </h4>
-
-              <p className="text-gray-400">
-                Karunadu technologies Pvt.Ltd
-              </p>
-
-              <p className="mt-4 text-gray-300">
-                • Built responsive web pages using React, HTML, CSS, and Tailwind CSS.
-              </p>
-
-              <p className="text-gray-300">
-                • Integrated Machine Learning models into web applications.
-              </p>
-
-              <p className="text-gray-300">
-                • Improved UI and fixed bugs.
-              </p>
+        <div className="journey-grid">
+          <motion.article
+            className="journey-card"
+            initial={{ opacity: 0, x: -24 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.55 }}
+            viewport={{ once: true, amount: 0.2 }}
+          >
+            <div className="journey-card-head">
+              <span className="journey-icon"><FaBriefcase /></span>
+              <span className="journey-label">EXPERIENCE</span>
             </div>
+            <h3>Python Programming and Machine Learning</h3>
+            <p className="journey-company">Karunadu Technologies Pvt. Ltd.</p>
+            <ul className="journey-list">
+              {responsibilities.map((responsibility) => (
+                <li key={responsibility}>
+                  <FaCode aria-hidden="true" />
+                  <span>{responsibility}</span>
+                </li>
+              ))}
+            </ul>
+            <div className="journey-tags">
+              {["React", "Python", "Machine Learning", "Tailwind CSS"].map((item) => (
+                <span key={item}>{item}</span>
+              ))}
+            </div>
+          </motion.article>
+
+          <div className="education-timeline" id="education">
+            <div className="journey-card-head">
+              <span className="journey-icon"><FaGraduationCap /></span>
+              <span className="journey-label">EDUCATION</span>
+            </div>
+            <motion.article
+              className="education-card"
+              initial={{ opacity: 0, x: 24 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.55 }}
+              viewport={{ once: true, amount: 0.2 }}
+            >
+              <span className="education-period">2023 — 2026</span>
+              <h3>B.E. Computer Science</h3>
+              <p>Acharya Institute of Technology</p>
+              <span className="education-score">CGPA 7.91</span>
+            </motion.article>
+            <motion.article
+              className="education-card"
+              initial={{ opacity: 0, x: 24 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.55, delay: 0.1 }}
+              viewport={{ once: true, amount: 0.2 }}
+            >
+              <span className="education-period">2020 — 2023</span>
+              <h3>Diploma, Computer Science</h3>
+              <p>Government Polytechnic Hosadurga</p>
+              <span className="education-score">CGPA 9.44</span>
+            </motion.article>
           </div>
-
-          {/* Education */}
-
-          <div className="bg-[#1e293b] p-8 rounded-2xl shadow-lg">
-            <h3 className="text-3xl font-bold text-blue-400 mb-5">
-              Education
-            </h3>
-
-            <h4 className="text-xl font-semibold">
-              BE Computer Science
-            </h4>
-
-            <p className="text-gray-400">
-              Acharya Institute of Technology
-            </p>
-
-            <p className="mt-4 text-gray-300">
-              CGPA: 7.89
-            </p>
-
-            <p className="text-gray-300">
-              2023 - 2026
-            </p>
-            <h4 className="text-xl font-semibold">
-              Diploma Computer Science
-            </h4>
-            <p className="text-gray-400">
-              Government Polytechnic Hosadurga 
-            </p>
-            <p className="mt-4 text-gray-300">
-              CGPA: 9.44
-            </p>
-
-            <p className="text-gray-300">
-              2020 - 2023
-            </p>
-
-          </div>
-
         </div>
-
       </div>
     </section>
   );

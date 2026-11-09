@@ -1,86 +1,142 @@
+import { useEffect, useMemo, useState } from "react";
+import { AnimatePresence, motion } from "framer-motion";
 import ProjectCard from "./ProjectCard";
+import projects from "../data/projects";
 
-import task from "../assets/projects/tasktracker.png";
-import portfolio from "../assets/projects/portfolio.png";
-import nirmaan from "../assets/projects/nirmaan.png";
+const filters = ["All", "Web Apps", "AI & Data"];
 
 function Projects() {
+  const [filter, setFilter] = useState("All");
+  const [selectedProject, setSelectedProject] = useState(null);
+  const visibleProjects = useMemo(
+    () => projects.filter((project) => filter === "All" || project.category === filter),
+    [filter],
+  );
 
-  const projects = [
-
-    {
-      image: task,
-      title: "AI-Powered Offline-First Restaurant Dashboard ",
-      description:
-        "At Ecomeal, we are building AI-powered systems for restaurants to reduce food waste, improve inventory efficiency, and increase profitability.",
-      technologies: [
-        "Flask",
-        "Node.js",
-        "MongoDB",
-      ],
-      github: "https://github.com/YOUR_USERNAME/tasktracker",
-      demo: "https://ecomeal-dashboard.vercel.app/login",
-    },
-
-    {
-      image: nirmaan,
-      title: "Nirmaan AI",
-      description:
-        "AI-powered delay prediction for public infrastructure projects.",
-      technologies: [
-        "React",
-        "Flask",
-        "Python",
-        "Machine Learning",
-      ],
-      github: "https://github.com/YOUR_USERNAME/nirmaan",
-      demo: "#",
-    },
-
-    {
-      image: portfolio,
-      title: "Portfolio Website",
-      description:
-        "Modern responsive developer portfolio.",
-      technologies: [
-        "React",
-        "Tailwind",
-        "Framer Motion",
-      ],
-      github: "https://github.com/YOUR_USERNAME/portfolio",
-      demo: "#",
-    },
-
-  ];
+  useEffect(() => {
+    if (!selectedProject) return undefined;
+    const closeOnEscape = (event) => {
+      if (event.key === "Escape") setSelectedProject(null);
+    };
+    document.addEventListener("keydown", closeOnEscape);
+    return () => document.removeEventListener("keydown", closeOnEscape);
+  }, [selectedProject]);
 
   return (
-
-    <section
-      id="projects"
-      className="bg-[#111827] py-24"
-    >
-
-      <div className="max-w-7xl mx-auto px-6">
-
-        <h1 className="text-5xl text-white font-bold text-center mb-16">
-          Featured Projects
-        </h1>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
-
-          {projects.map((project, index) => (
-            <ProjectCard
-              key={index}
-              {...project}
-            />
-          ))}
-
+    <section id="projects" className="projects-section py-24">
+      <div className="section-container">
+        <div className="section-eyebrow">SELECTED BUILDS</div>
+        <div className="projects-heading-row">
+          <div>
+            <h2 className="section-title">Ideas, meet execution.</h2>
+            <p className="section-lede">
+              A collection of work across web development, AI, and computer vision.
+            </p>
+          </div>
+          <a
+            href="https://github.com/CSShivacharya?tab=repositories"
+            target="_blank"
+            rel="noreferrer"
+            className="text-link"
+          >
+            More on GitHub <span aria-hidden="true">↗</span>
+          </a>
         </div>
 
+        <div className="project-filters" role="group" aria-label="Filter projects">
+          {filters.map((item) => (
+            <button
+              type="button"
+              key={item}
+              className={filter === item ? "project-filter active" : "project-filter"}
+              onClick={() => setFilter(item)}
+              aria-pressed={filter === item}
+            >
+              {item}
+            </button>
+          ))}
+        </div>
+
+        <motion.div layout className="projects-grid">
+          <AnimatePresence mode="popLayout">
+            {visibleProjects.map((project, index) => (
+              <ProjectCard
+                key={project.title}
+                {...project}
+                index={index}
+                onDetails={() => setSelectedProject(project)}
+              />
+            ))}
+          </AnimatePresence>
+        </motion.div>
       </div>
 
+      <AnimatePresence>
+        {selectedProject && (
+          <motion.div
+            className="project-modal-backdrop"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onMouseDown={(event) => {
+              if (event.target === event.currentTarget) setSelectedProject(null);
+            }}
+          >
+            <motion.div
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby="project-modal-title"
+              className="project-modal"
+              initial={{ opacity: 0, y: 18, scale: 0.97 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: 12, scale: 0.98 }}
+            >
+              <button
+                type="button"
+                className="modal-close"
+                autoFocus
+                onClick={() => setSelectedProject(null)}
+                aria-label="Close project details"
+              >
+                ×
+              </button>
+              <span className="section-eyebrow">{selectedProject.type}</span>
+              <h2 id="project-modal-title">{selectedProject.title}</h2>
+              <p>{selectedProject.description}</p>
+              {selectedProject.technologies.length > 0 && (
+                <div className="project-tags">
+                  {selectedProject.technologies.map((technology) => (
+                    <span className="project-tag" key={technology}>{technology}</span>
+                  ))}
+                </div>
+              )}
+              <div className="project-card-links">
+                {selectedProject.github && (
+                  <a
+                    className="project-card-link"
+                    href={selectedProject.github}
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    GitHub repository ↗
+                  </a>
+                )}
+                {selectedProject.demo && (
+                  <a
+                    className="project-card-link"
+                    href={selectedProject.demo}
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    Open live demo ↗
+                  </a>
+                )}
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </section>
-
   );
 }
 

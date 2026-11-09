@@ -1,8 +1,9 @@
+import { lazy, Suspense } from "react";
 import Navbar from "./components/Navbar";
 import Hero from "./components/Hero";
 import About from "./components/About";
 import Skills from "./components/Skills";
-import Projects from "./components/Projects"; // <-- This line is required
+import Projects from "./components/Projects";
 import Contact from "./components/Contact";
 import Footer from "./components/Footer";
 import Stats from "./components/Stats";
@@ -12,30 +13,37 @@ import ScrollToTop from "./components/ScrollToTop";
 import Certificates from "./components/Certificates";
 import ScrollProgress from "./components/ScrollProgress";
 import Cursor from "./components/Cursor";
+const GitHubStats = lazy(() => import("./components/GitHubStats"));
+const ScrollAnimations = lazy(() => import("./components/ScrollAnimations"));
 
 function App() {
   return (
     <>
-     <Cursor />
-    <ScrollProgress />
-  <Navbar />
-  <Hero />
-  <About />
-  <Stats />
-  <Skills />
-  <Services />
-  <Projects />
-  <Certificates />
-  <Experience />
-  <Contact />
-  <ScrollToTop />
-  <Footer />
-  <div className="fixed inset-0 -z-10 overflow-hidden">
-  <div className="absolute top-20 left-20 w-72 h-72 bg-blue-500 opacity-10 blur-[120px] rounded-full"></div>
-
-  <div className="absolute bottom-10 right-20 w-96 h-96 bg-cyan-500 opacity-10 blur-[150px] rounded-full"></div>
-</div>
-</>
+      <Cursor />
+      <ScrollProgress />
+      <Suspense fallback={null}>
+        <ScrollAnimations />
+      </Suspense>
+      <Navbar />
+      <main>
+        <Hero />
+        <About />
+        <Stats />
+        <Skills />
+        <Services />
+        <Projects />
+        <Suspense
+          fallback={<div className="github-loading" aria-label="Loading GitHub activity" />}
+        >
+          <GitHubStats />
+        </Suspense>
+        <Experience />
+        <Certificates />
+        <Contact />
+      </main>
+      <ScrollToTop />
+      <Footer />
+    </>
   );
 }
 

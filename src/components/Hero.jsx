@@ -1,144 +1,239 @@
+import { Component, lazy, Suspense, useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { TypeAnimation } from "react-type-animation";
 import {
+  FaArrowDown,
+  FaArrowRight,
+  FaDownload,
+  FaEnvelope,
   FaGithub,
   FaLinkedin,
-  FaEnvelope,
-  FaDownload,
 } from "react-icons/fa";
-import profile from "../assets/profile.jpg";
+import { FiArrowUpRight } from "react-icons/fi";
+
+const Scene3D = lazy(() => import("./Scene3D"));
+
+class SceneErrorBoundary extends Component {
+  state = { hasError: false };
+
+  static getDerivedStateFromError() {
+    return { hasError: true };
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return <div className="scene-fallback" aria-hidden="true" />;
+    }
+
+    return this.props.children;
+  }
+
+  componentDidCatch(error) {
+    console.error("WebGL hero scene failed; showing the CSS fallback.", error);
+  }
+}
 
 function Hero() {
+  const [sceneReady, setSceneReady] = useState(false);
+  const [localTime, setLocalTime] = useState("");
+  const [roleIndex, setRoleIndex] = useState(0);
+
+  useEffect(() => {
+    const updateTime = () => {
+      setLocalTime(
+        new Intl.DateTimeFormat(undefined, {
+          hour: "2-digit",
+          minute: "2-digit",
+          second: "2-digit",
+          hour12: false,
+        }).format(new Date()),
+      );
+    };
+    updateTime();
+    const clockInterval = window.setInterval(updateTime, 1000);
+    return () => window.clearInterval(clockInterval);
+  }, []);
+
+  useEffect(() => {
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return undefined;
+    const roles = 4;
+    const roleInterval = window.setInterval(() => {
+      setRoleIndex((index) => (index + 1) % roles);
+    }, 2800);
+    return () => window.clearInterval(roleInterval);
+  }, []);
+
+  useEffect(() => {
+    const connection = navigator.connection;
+    const lowPowerDevice = navigator.deviceMemory <= 2 || connection?.saveData;
+    if (
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches ||
+      lowPowerDevice
+    ) {
+      return undefined;
+    }
+
+    const showScene = () => setSceneReady(true);
+    if ("requestIdleCallback" in window) {
+      const idleId = window.requestIdleCallback(showScene, { timeout: 1200 });
+      return () => window.cancelIdleCallback(idleId);
+    }
+
+    const timer = window.setTimeout(showScene, 250);
+    return () => window.clearTimeout(timer);
+  }, []);
+
   return (
-    <section
-      id="home"
-      className="relative min-h-screen flex items-center bg-[#0f172a] overflow-hidden"
-    >
-      {/* Background Glow */}
-      <div className="absolute top-20 left-10 w-72 h-72 bg-blue-500/20 rounded-full blur-3xl"></div>
-      <div className="absolute bottom-20 right-10 w-96 h-96 bg-cyan-500/20 rounded-full blur-3xl"></div>
-
-      <div className="max-w-7xl mx-auto px-6 grid md:grid-cols-2 gap-12 items-center">
-
-        {/* Left */}
+    <section id="home" className="hero-section">
+      <div className="hero-scene" aria-hidden="true">
+        {sceneReady ? (
+          <SceneErrorBoundary>
+            <Suspense fallback={<div className="scene-fallback" />}>
+              <Scene3D />
+            </Suspense>
+          </SceneErrorBoundary>
+        ) : (
+          <div className="scene-fallback" />
+        )}
+      </div>
+      <div className="hero-system-readout" aria-label="Portfolio system information">
+        <span className="system-readout-mark">CS SHIVACHARYA</span>
+        <span>LOCAL TIME <strong>{localTime || "--:--:--"}</strong></span>
+      </div>
+      <div className="hero-inner">
         <motion.div
-          initial={{ opacity: 0, x: -60 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.8 }}
+          className="hero-copy"
+          initial={{ opacity: 0, y: 22 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.65 }}
         >
-          <p className="text-blue-400 text-lg mb-2">
-            👋 Hello, I'm
-          </p>
-
-          <h1 className="text-5xl md:text-7xl font-bold text-white leading-tight">
-            Chandrashekhara
-            <br />
-            <span className="text-blue-500">
-              Shivacharya V M
-            </span>
+          <p className="hero-kicker">WELCOME TO MY DIGITAL UNIVERSE</p>
+          <p className="hero-name">CHANDRA</p>
+          <h1 className="hero-title">
+            <span className="hero-title-main">FULL STACK</span>
+            <span>DEVELOPER</span>
           </h1>
 
-          <div className="mt-6 text-2xl text-gray-300 font-semibold">
-            <TypeAnimation
-              sequence={[
-                "Full Stack Developer",
-                2000,
-                "React Developer",
-                2000,
-                "Python Developer",
-                2000,
-                "AI Enthusiast",
-                2000,
-              ]}
-              wrapper="span"
-              speed={50}
-              repeat={Infinity}
-            />
+          <div className="hero-role">
+            <span className="role-prefix">SPECIALIZATION //</span>
+            <span className="role-current" key={roleIndex}>
+              {["Python Developer", "Full Stack Developer", "AI/ML Enthusiast", "Creative Developer"][roleIndex]}
+            </span>
           </div>
 
-          <p className="mt-8 text-gray-400 leading-8 max-w-lg">
-            Passionate Computer Science student building responsive web
-            applications, AI-powered solutions, and modern user
-            experiences using React, Node.js, Python, Flask, and Machine
-            Learning.
+          <p className="hero-description">
+            Hey, I&apos;m <strong>Chandrashekhara Shivacharya V M</strong> — a
+            computer science student who turns curious ideas into useful
+            products, building intelligent applications and immersive digital
+            experiences along the way.
           </p>
 
-          {/* Buttons */}
-          <div className="flex flex-wrap gap-4 mt-10">
-
-            <a
-              href="#contact"
-              className="bg-blue-600 hover:bg-blue-700 px-6 py-3 rounded-xl font-semibold transition"
-            >
-              Hire Me
+          <div className="hero-actions">
+            <a href="#projects" className="hero-button hero-button-primary">
+              View my projects <FaArrowRight aria-hidden="true" />
             </a>
-
-            <a
-              href="/chandracv.pdf"
-              download
-              className="border border-blue-500 hover:bg-blue-600 px-6 py-3 rounded-xl flex items-center gap-2 transition"
-            >
-              <FaDownload />
-              Resume
+            <a href="#skills" className="hero-button">Explore my world</a>
+            <a href="/chandracv.pdf" download className="hero-button">
+              <FaDownload aria-hidden="true" /> Get my resume
             </a>
-
           </div>
 
-          {/* Social Icons */}
-          <div className="flex gap-6 mt-8 text-2xl">
-
-            <a
-               href="https://github.com/CSShivacharya"
-              target="_blank"
-              rel="noreferrer"
-              className="hover:text-blue-400 transition"
-            >
-              <FaGithub />
+          <div className="hero-bottom-row">
+            <div className="hero-socials" aria-label="Social links">
+              <a
+                href="https://github.com/CSShivacharya"
+                target="_blank"
+                rel="noreferrer"
+                aria-label="GitHub"
+              >
+                <FaGithub />
+              </a>
+              <a
+                href="https://www.linkedin.com/in/chandra-v-m-019b60260/"
+                target="_blank"
+                rel="noreferrer"
+                aria-label="LinkedIn"
+              >
+                <FaLinkedin />
+              </a>
+              <a
+                href="mailto:chandrashekharashivacharya18@gmail.com"
+                aria-label="Email"
+              >
+                <FaEnvelope />
+              </a>
+            </div>
+            <a href="#about" className="hero-scroll">
+              Scroll to explore <FaArrowDown aria-hidden="true" />
             </a>
-
-            <a
-              href="https://www.linkedin.com/in/chandra-v-m-019b60260/"
-              target="_blank"
-              rel="noreferrer"
-              className="hover:text-blue-400 transition"
-            >
-              <FaLinkedin />
-            </a>
-
-            <a
-               href="https://mail.google.com/:chandrashekharashivacharya18@gmail.com"
-              className="hover:text-blue-400 transition"
-            >
-              <FaEnvelope />
-            </a>
-
           </div>
         </motion.div>
 
-        {/* Right */}
         <motion.div
-          initial={{ opacity: 0, scale: 0.7 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 1 }}
-          className="flex justify-center"
+          className="hero-visual"
+          initial={{ opacity: 0, y: 18, rotate: 2 }}
+          animate={{ opacity: 1, y: 0, rotate: 0 }}
+          transition={{ duration: 0.75, delay: 0.12 }}
         >
-          <div className="relative">
-            <img
-              src={profile}
-              alt="Profile"
-              className="w-72 h-72 md:w-[420px] md:h-[420px] object-cover rounded-full border-4 border-blue-500 shadow-[0_0_60px_rgba(59,130,246,0.6)]"
-            />
-
-            <div className="absolute -bottom-3 left-1/2 -translate-x-1/2 bg-blue-600 px-5 py-2 rounded-full text-white font-semibold shadow-lg">
-              Open to Work 🚀
+          <div className="editor-window">
+            <div className="editor-topbar">
+              <div className="editor-dots" aria-hidden="true">
+                <span />
+                <span />
+                <span />
+              </div>
+              <span className="editor-filename">about-me.jsx</span>
+              <span className="editor-language">JS</span>
+            </div>
+            <div className="editor-code" aria-label="Developer profile code">
+              {[
+                <>
+                  <span className="code-purple">const</span> developer = {"{"}
+                </>,
+                <>
+                  {"  "}name: <span className="code-green">&quot;Chandrashekhara&quot;</span>,
+                </>,
+                <>
+                  {"  "}role: <span className="code-green">&quot;Full Stack Developer&quot;</span>,
+                </>,
+                <>
+                  {"  "}building: [<span className="code-green">&quot;web&quot;</span>, <span className="code-green">&quot;AI&quot;</span>, <span className="code-green">&quot;ideas&quot;</span>],
+                </>,
+                <>
+                  {"  "}interests: <span className="code-green">&quot;AI + the web&quot;</span>,
+                </>,
+                <>
+                  {"  "}focus: <span className="code-green">&quot;useful experiences&quot;</span>
+                </>,
+                <>{"}"};</>,
+              ].map((line, index) => (
+                <div className="editor-line" key={index}>
+                  <span className="line-number">{String(index + 1).padStart(2, "0")}</span>
+                  <code>{line}</code>
+                </div>
+              ))}
+              <div className="editor-cursor-line">
+                <span className="line-number">08</span>
+                <span className="editor-cursor" aria-hidden="true" />
+              </div>
+            </div>
+            <div className="editor-status">
+              <span><i /> CHANDRA.EXE / DEVELOPER PORTFOLIO</span>
+              <span>UTF-8&nbsp; · &nbsp;JSX</span>
             </div>
           </div>
+          <div className="floating-chip floating-chip-one">
+            <span>⚡</span> ships ideas
+          </div>
+          <div className="floating-chip floating-chip-two">
+            <span>⌘</span> React · Python · AI
+          </div>
+          <a className="hero-connect-chip" href="#contact">
+            Let&apos;s connect <FiArrowUpRight aria-hidden="true" />
+          </a>
         </motion.div>
-
       </div>
     </section>
   );
 }
 
 export default Hero;
-
